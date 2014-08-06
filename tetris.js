@@ -19,7 +19,11 @@ Field.prototype.draw = function() {
     for (var y = 0; y < this.height; y++) {
         container.append('<p>' + this.cells[y].join('  ') + '<p>')
     }
-    container.append('<h2>Erased rows: '+this.erased+'</h2>');
+    container.append('<h2>Erased rows: ' + this.erased + '</h2>');
+    if (this.element) {
+        container.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
+        container.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
+    }
 };
 
 Field.prototype.step = function() {
@@ -47,7 +51,7 @@ Field.prototype.checkErase = function(row) {
                 that.cells[i - 1][index] === '*' ? that.cells[i][index] = '..' : that.cells[i][index] = that.cells[i - 1][index];
                 return prev || (currVal === '#')
             }, false);
-            if (stop) break;
+            //if (stop) break;
         }
         this.erased++;
         this.checkErase(row);
@@ -57,26 +61,100 @@ Field.prototype.checkErase = function(row) {
 
 function Element(field) {
     function getShape(x, y) {
-        // var possible = [[0,0],[1,3],[0,4],[-1,3]];
-        // var shape = possible[Math.floor(Math.random()*possible.length)];
-        return [
-            [x, y],
-            [x, y + 1],
-            [x + 1, y],
-            [x + 1, y + 1]
-        ]; //always squere
+        var possible = [
+            [
+                [0, 0],
+                [0, -1],
+                [1, 0],
+                [1, -1]
+            ],
+            [
+                [0, -1],
+                [0, 0],
+                [0, 1],
+                [0, 2]
+
+            ],
+            [
+                [1, -1],
+                [0, -1],
+                [0, 0],
+                [0, 1]
+            ]
+        ];
+        var shape = possible[Math.floor(Math.random() * possible.length)];
+        return shape.map(function(val) {
+            return [val[0] + x, val[1] + y]
+        });
     }
 
     this.field = field;
     this.x = Math.floor((this.field.width - 1) / 2);
-    this.y = 0;
+    this.y = 1;
     this.cords = getShape(this.x, this.y);
     this.cords.map(function(elm) {
         this.cells[elm[1]][elm[0]] = '*';
     }, this.field);
 };
 
-Element.prototype.turn = function() {};
+Element.prototype.rotate = function() {
+    function validateRot() {
+        function result() {
+            return {
+                "rotate": arguments[0],
+                "newCords": arguments[1]
+                // "comment": arguments[2]
+            }
+        };
+
+        var canRot = true;
+        var newCords = this.cords.map(function(value) {
+            var newPoint = [(value[1] - this.y) + this.x, -(value[0] - this.x) + this.y];
+            var field = this.field;
+            //check horizontal conditions
+            if (newPoint[0] < 0 || newPoint[0] >= field.width) {
+                canRot = false
+            } else {
+                var pnt = this.field.cells[newPoint[1]][newPoint[0]];
+                if (!(pnt == '..' || pnt == '*')) {
+                    canRot = false
+                }
+            };
+            //check vertical conditions
+            if (newPoint[1] < 0) {
+                canRot = false
+            } else if (newPoint[1] >= field.height) {
+                canRot = false;
+            } else {
+                var pnt = this.field.cells[newPoint[1]][newPoint[0]];
+                if (!(pnt == '..' || pnt == '*')) {
+                    canRot = false
+                }
+            }
+
+            return newPoint;
+        }, this);
+        return result(canRot, newCords);
+    };
+
+    function applyRot(that, newCords) {
+        console.log('Applying rotate to', newCords);
+        that.cords.reduce(function(prev, curr) {
+            that.field.cells[curr[1]][curr[0]] = '..';
+        }, 0);
+        newCords.reduce(function(prev, curr) {
+            that.field.cells[curr[1]][curr[0]] = '*';
+        }, 0);
+        that.cords = newCords;
+    };
+    var valRot = validateRot.call(this);
+    if (valRot.rotate) {
+
+        applyRot(this, valRot.newCords);
+    };
+    return valRot.rotate;
+
+};
 
 Element.prototype.validateHozMove = function(X) {
     function result() {
@@ -146,16 +224,22 @@ Element.prototype.move = function(dir) {
             that.field.cells[curr[1]][curr[0]] = '*';
         }, 0);
         that.cords = newCords;
+        that.x = that.x + dir[0];
+        that.y = that.y + dir[1];
     };
 
     function performHit() {
         console.log('performing hittting');
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
+        }, 0);
+
+        that.cords.reduce(function(prev, curr) {
             that.field.checkErase(curr[1]);
         }, 0);
 
         that.field.element = null;
+        that.field.element = new Element();
     }
 
     var X = dir[0],
@@ -186,15 +270,15 @@ Element.prototype.move = function(dir) {
 };
 
 var tetris = new Field({
-    "w": 6,
-    "h": 8
+    "w": 8,
+    "h": 10
 });
 
 
 tetris.draw();
 setInterval(function() {
     tetris.step();
-}, 1000);
+}, 5000);
 
 $(document).keydown(function(e) {
     switch (e.which) {
@@ -205,6 +289,9 @@ $(document).keydown(function(e) {
             break;
 
         case 38: // up
+            if (tetris.element.rotate()) {
+                tetris.draw();
+            };
             break;
 
         case 39: // right
