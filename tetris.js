@@ -50,20 +50,6 @@ function Element(field) {
     this.x = Math.floor((this.field.width - 1) / 2);
     this.y = 0;
     this.cords = getShape(this.x, this.y);
-    this.validateCords = function(cords) {
-        var x = cords[0];
-        var y = cords[1];
-        var field = this.field;
-        if (x < 0 || x >= field.width) {
-            return false
-        };
-        if (y < 0 || y >= field.height) {
-            return false
-        };
-        if (field.cells[y][x] !== 'O' || field.cells[y][x] !== '*') {
-            return true
-        };
-    };
     this.cords.map(function(elm) {
         this.cells[elm[1]][elm[0]] = '*';
     }, this.field);
@@ -71,16 +57,67 @@ function Element(field) {
 
 Element.prototype.turn = function() {};
 
-Element.prototype.move = function(dir) {
-    var that = this;
-    var newCords = that.cords.map(function(value) {
-        return [value[0] + dir[0], value[1] + dir[1]]
-    });
-    var moved = newCords.reduce(function(prev, curr) {
-        return prev && that.validateCords(curr);
-    }, true);
+Element.prototype.validateHozMove = function(X) {
+    function result() {
+        return {
+            "moveX": arguments[0],
+            "newCords": arguments[1]
+            // "comment": arguments[2]
+        }
+    };
 
-    if (moved) {
+    var canMoveX = true;
+    var newCords = this.cords.map(function(value) {
+        var newPoint = [value[0] + X, value[1]];
+        var field = this.field;
+        if (newPoint[0] < 0 || newPoint[0] >= field.width) {
+            canMoveX = false
+        } else {
+            var pnt = this.field.cells[newPoint[1]][newPoint[0]];
+            if (!(pnt == 'O' || pnt == '*')) {
+                canMoveX = false
+            }
+        };
+        return newPoint;
+    }, this);
+    return result(canMove, newCords);
+};
+
+Element.prototype.validateVertMove = function(Y) {
+    function result() {
+        return {
+            "moveY": arguments[0],
+            "newCords": arguments[1],
+            "hitGround": arguments[2]
+        }
+    };
+
+    var canMoveY = true;
+    var hitGround = false;
+    var newCords = this.cords.map(function(value) {
+        var newPoint = [value[0], value[1] + Y];
+        var field = this.field;
+        if (newPoint[1] < 0) {
+            canMoveY = false
+        } else if (newPoint[1] >= field.height) {
+            canMoveY = false;
+            hitGround = true;
+        } else {
+            var pnt = this.field.cells[newPoint[1]][newPoint[0]];
+            if (!(pnt == 'O' || pnt == '*')) {
+                canMoveY = false
+                hitGround = true;
+            }
+        }
+        return newPoint;
+    }, this);
+    return result(canMoveY, newCords, hitGround);
+};
+
+
+Element.prototype.move = function(dir) {
+    function applyMove(newCords) {
+    	console.log('Applying move to',newCords);
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = 'O';
         }, 0);
@@ -88,10 +125,41 @@ Element.prototype.move = function(dir) {
             that.field.cells[curr[1]][curr[0]] = '*';
         }, 0);
         that.cords = newCords;
-        return true;
+    };
+
+    function performHit() {
+    	console.log('performing hittting');
+        that.cords.reduce(function(prev, curr) {
+            that.field.cells[curr[1]][curr[0]] = '#';
+        }, 0);
+        that.field.element = null;
+    }
+
+    var X = dir[0],
+        Y = dir[1];
+    var that = this;
+    if (X * Y !== 0) {
+        return false
+    } //we can move only on horz or vert direction
+
+    if (X !== 0) { //perform horz movement
+        var valRes = that.validateHozMove(X);
+        if (valRes.moveX) {
+            applyMove(valRes.newCords)
+        }
+        return valRes.moveX;
+    } else if (Y !== 0) { //perform vert movement
+        var valRes = that.validateVertMove(Y);
+        if (valRes.moveY) {
+            applyMove(valRes.newCords)
+        } else if (valRes.hitGround) {
+            performHit();
+        }
+        return valRes.moveY;
     } else {
         return false
-    };
+    }
+
 };
 
 var tetris = new Field({
