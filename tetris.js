@@ -14,7 +14,7 @@ function Field(options) {
 };
 
 Field.prototype.draw = function() {
-    var container = $('body');
+    var container = $('#tetris');
     container.html('');
     for (var y = 0; y < this.height; y++) {
         container.append('<p>' + this.cells[y].join('  ') + '<p>')
@@ -79,6 +79,30 @@ function Element(field) {
                 [1, -1],
                 [0, -1],
                 [0, 0],
+                [0, 1]
+            ],
+            [
+                [-1, -1],
+                [0, -1],
+                [0, 0],
+                [0, 1]
+            ],
+            [
+                [0, -1],
+                [1, -1],
+                [0, 0],
+                [-1, 0]
+            ],
+            [
+                [0, -1],
+                [-1, -1],
+                [0, 0],
+                [1, 0]
+            ],
+            [
+                [0, -1],
+                [0, 0],
+                [1, 0],
                 [0, 1]
             ]
         ];
@@ -270,15 +294,15 @@ Element.prototype.move = function(dir) {
 };
 
 var tetris = new Field({
-    "w": 8,
-    "h": 10
+    "w": 10,
+    "h": 12
 });
 
 
 tetris.draw();
 setInterval(function() {
     tetris.step();
-}, 5000);
+}, 2000);
 
 $(document).keydown(function(e) {
     switch (e.which) {
