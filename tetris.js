@@ -6,19 +6,20 @@ function Field(options) {
     for (var y = 0; y < this.height; y++) {
         this.cells[y] = new Array(this.width)
         for (var x = 0; x < this.width; x++) {
-            this.cells[y][x] = 'O';
+            this.cells[y][x] = '..';
         }
     }
     this.turn = 0;
+    this.erased = 0;
 };
 
 Field.prototype.draw = function() {
     var container = $('body');
     container.html('');
     for (var y = 0; y < this.height; y++) {
-        container.append('<p>' + this.cells[y].join('|') + '<p>')
-
+        container.append('<p>' + this.cells[y].join('  ') + '<p>')
     }
+    container.append('<h2>Erased rows: '+this.erased+'</h2>');
 };
 
 Field.prototype.step = function() {
@@ -32,6 +33,26 @@ Field.prototype.step = function() {
             this.draw();
         }
     }
+};
+
+Field.prototype.checkErase = function(row) {
+    var that = this;
+    var doErase = this.cells[row].reduce(function(prev, currVal) {
+        return (prev && (currVal === '#'))
+    }, true);
+    if (doErase) {
+        for (var i = row; i > 0; i--) {
+            var stop = that.cells[i].reduce(function(prev, currVal, index) {
+                //if the in preveous row we have an element then forcing to erase with empty space;
+                that.cells[i - 1][index] === '*' ? that.cells[i][index] = '..' : that.cells[i][index] = that.cells[i - 1][index];
+                return prev || (currVal === '#')
+            }, false);
+            if (stop) break;
+        }
+        this.erased++;
+        this.checkErase(row);
+    };
+
 };
 
 function Element(field) {
@@ -74,13 +95,13 @@ Element.prototype.validateHozMove = function(X) {
             canMoveX = false
         } else {
             var pnt = this.field.cells[newPoint[1]][newPoint[0]];
-            if (!(pnt == 'O' || pnt == '*')) {
+            if (!(pnt == '..' || pnt == '*')) {
                 canMoveX = false
             }
         };
         return newPoint;
     }, this);
-    return result(canMove, newCords);
+    return result(canMoveX, newCords);
 };
 
 Element.prototype.validateVertMove = function(Y) {
@@ -104,7 +125,7 @@ Element.prototype.validateVertMove = function(Y) {
             hitGround = true;
         } else {
             var pnt = this.field.cells[newPoint[1]][newPoint[0]];
-            if (!(pnt == 'O' || pnt == '*')) {
+            if (!(pnt == '..' || pnt == '*')) {
                 canMoveY = false
                 hitGround = true;
             }
@@ -117,9 +138,9 @@ Element.prototype.validateVertMove = function(Y) {
 
 Element.prototype.move = function(dir) {
     function applyMove(newCords) {
-    	console.log('Applying move to',newCords);
+        console.log('Applying move to', newCords);
         that.cords.reduce(function(prev, curr) {
-            that.field.cells[curr[1]][curr[0]] = 'O';
+            that.field.cells[curr[1]][curr[0]] = '..';
         }, 0);
         newCords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '*';
@@ -128,10 +149,12 @@ Element.prototype.move = function(dir) {
     };
 
     function performHit() {
-    	console.log('performing hittting');
+        console.log('performing hittting');
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
+            that.field.checkErase(curr[1]);
         }, 0);
+
         that.field.element = null;
     }
 
@@ -163,8 +186,8 @@ Element.prototype.move = function(dir) {
 };
 
 var tetris = new Field({
-    "w": 10,
-    "h": 15
+    "w": 6,
+    "h": 8
 });
 
 
@@ -172,3 +195,32 @@ tetris.draw();
 setInterval(function() {
     tetris.step();
 }, 1000);
+
+$(document).keydown(function(e) {
+    switch (e.which) {
+        case 37: // left
+            if (tetris.element.move([-1, 0])) {
+                tetris.draw();
+            };
+            break;
+
+        case 38: // up
+            break;
+
+        case 39: // right
+            if (tetris.element.move([1, 0])) {
+                tetris.draw();
+            };
+            break;
+
+        case 40: // down
+            if (tetris.element.move([0, 1])) {
+                tetris.draw();
+            };
+            break;
+
+        default:
+            return; // exit this handler for other keys
+    }
+    e.preventDefault(); // prevent the default action (scroll / move caret)
+});
