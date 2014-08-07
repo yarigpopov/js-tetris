@@ -13,22 +13,11 @@ function Field(options) {
     this.erased = 0;
 };
 
-Field.prototype.draw = function() {
-    var container = $('#tetris');
-    container.html('');
-    for (var y = 0; y < this.height; y++) {
-        container.append('<p>' + this.cells[y].join('  ') + '<p>')
-    }
-    container.append('<h2>Erased rows: ' + this.erased + '</h2>');
-    if (this.element) {
-        container.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
-        container.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
-    }
-};
+Field.prototype.draw = function() {};
 
 Field.prototype.step = function() {
     this.turn++;
-    console.log('Turn #', this.turn)
+    // console.log('Turn #', this.turn)
     if (!this.element || this.element == undefined) {
         this.element = new Element(this)
         this.draw();
@@ -58,6 +47,11 @@ Field.prototype.checkErase = function(row) {
     };
 
 };
+
+Field.prototype.newElement = function() {
+	    this.element = null;
+        that.field.element = new Element();
+}
 
 function Element(field) {
     function getShape(x, y) {
@@ -162,7 +156,7 @@ Element.prototype.rotate = function() {
     };
 
     function applyRot(that, newCords) {
-        console.log('Applying rotate to', newCords);
+        // console.log('Applying rotate to', newCords);
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '..';
         }, 0);
@@ -240,7 +234,7 @@ Element.prototype.validateVertMove = function(Y) {
 
 Element.prototype.move = function(dir) {
     function applyMove(newCords) {
-        console.log('Applying move to', newCords);
+        // console.log('Applying move to', newCords);
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '..';
         }, 0);
@@ -253,7 +247,7 @@ Element.prototype.move = function(dir) {
     };
 
     function performHit() {
-        console.log('performing hittting');
+        // console.log('performing hittting');
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
         }, 0);
@@ -261,9 +255,7 @@ Element.prototype.move = function(dir) {
         that.cords.reduce(function(prev, curr) {
             that.field.checkErase(curr[1]);
         }, 0);
-
-        that.field.element = null;
-        that.field.element = new Element();
+        that.field.newElement();
     }
 
     var X = dir[0],
@@ -295,8 +287,41 @@ Element.prototype.move = function(dir) {
 
 var tetris = new Field({
     "w": 10,
-    "h": 12
+    "h": 17
 });
+
+tetris.draw = function() {
+    var container = $('#tetris');
+    
+    var row,renderHtml = [];
+    for (var y = 0; y < this.height; y++) {
+    	row = [];
+    	row.push('<ul class="row">');
+    	for (var x = 0; x < this.width; x++) {
+    		switch (this.cells[y][x]) {
+    			case '..' :
+    			row.push('<li></li>');
+    			break;
+    			case '*' :
+    			row.push('<li class="element"></li>');
+    			break;    			
+    			case '#' :
+    			row.push('<li class="ground"></li>');
+    			break;
+    			default:
+    		}
+    	};
+    	row.push('</ul>');
+    	renderHtml.push(row.join(''));
+    }
+    container.html('');
+    container.append(renderHtml.join(''));
+    container.append('<h2>Erased rows: ' + this.erased + '</h2>');
+    if (this.element) {
+        container.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
+        container.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
+    }
+}
 
 
 tetris.draw();
