@@ -17,7 +17,7 @@ Field.prototype.draw = function() {};
 
 Field.prototype.step = function() {
     this.turn++;
-     console.log('Turn #', this.turn,Date());
+    console.log('Turn #', this.turn, Date());
     if (!this.element || this.element == undefined) {
         this.newElement();
     } else {
@@ -247,7 +247,7 @@ Element.prototype.move = function(dir) {
     };
 
     function performHit() {
-         console.log('performing hittting');
+        console.log('performing hittting');
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
         }, 0);
@@ -285,6 +285,13 @@ Element.prototype.move = function(dir) {
 
 };
 
+function TetrisElement(field) {
+    Element.call(this, field)
+    this.isDropping = false;
+}
+
+TetrisElement.prototype = Object.create(Element.prototype);
+
 function Tetris(options) {
     Field.call(this, options);
     this.level = options.level || 1;
@@ -305,6 +312,27 @@ Tetris.prototype.rotate = function() {
         this.draw();
     };
 }
+
+Tetris.prototype.drop = function() {
+    console.log('drop');
+    if (!this.element) return;
+    this.element.isDropping = true;
+    if (tetris.element.move([0, 1])) {
+        var that = this;
+        this.draw();
+        setTimeout(function() {
+            that.drop();
+        }, 50);
+    }
+}
+
+
+Tetris.prototype.newElement = function() {
+    this.element = null;
+    this.element = new TetrisElement(this);
+    this.draw();
+}
+
 
 
 var tetris = new Tetris({
@@ -358,7 +386,7 @@ $(document).keydown(function(e) {
             break;
 
         case 38: // up
-        	tetris.rotate();
+            tetris.rotate();
             break;
 
         case 39: // right
@@ -367,6 +395,14 @@ $(document).keydown(function(e) {
 
         case 40: // down
             tetris.move([0, 1]);
+            break;
+        case 32: // blank
+            if (tetris.element) {
+                if (!tetris.element.isDropping) {
+                    tetris.drop();
+                }
+            }
+
             break;
 
         default:
