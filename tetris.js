@@ -316,7 +316,7 @@ Tetris.prototype.rotate = function() {
 Tetris.prototype.drop = function() {
     console.log('drop');
     if (!this.element) return;
-    this.element.isDropping = true;
+    if (!this.element.isDropping) return;
     if (tetris.element.move([0, 1])) {
         var that = this;
         this.draw();
@@ -330,6 +330,7 @@ Tetris.prototype.drop = function() {
 Tetris.prototype.newElement = function() {
     this.element = null;
     this.element = new TetrisElement(this);
+    console.log('newElement'+this.element.isDropping);
     this.draw();
 }
 
@@ -373,6 +374,14 @@ tetris.draw = function() {
     }
 }
 
+// tetris.newElement = function() {
+//     this.element = null;
+//     this.element = new TetrisElement(this);
+//     console.log('asdf' + this.element.isDropping);
+//     this.draw();
+// }
+
+
 
 tetris.draw();
 setInterval(function() {
@@ -397,11 +406,11 @@ $(document).keydown(function(e) {
             tetris.move([0, 1]);
             break;
         case 32: // blank
-            if (tetris.element) {
-                if (!tetris.element.isDropping) {
-                    tetris.drop();
-                }
-            }
+            if (tetris.element && !tetris.element.isDropping) {
+                tetris.element.isDropping = true;
+                tetris.drop();
+            };
+
 
             break;
 
