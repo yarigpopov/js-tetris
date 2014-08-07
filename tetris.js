@@ -17,10 +17,9 @@ Field.prototype.draw = function() {};
 
 Field.prototype.step = function() {
     this.turn++;
-    // console.log('Turn #', this.turn)
+     console.log('Turn #', this.turn,Date());
     if (!this.element || this.element == undefined) {
-        this.element = new Element(this)
-        this.draw();
+        this.newElement();
     } else {
         if (this.element.move([0, 1])) {
             this.draw();
@@ -49,8 +48,9 @@ Field.prototype.checkErase = function(row) {
 };
 
 Field.prototype.newElement = function() {
-	    this.element = null;
-        that.field.element = new Element();
+    this.element = null;
+    this.element = new Element(this);
+    this.draw();
 }
 
 function Element(field) {
@@ -247,7 +247,7 @@ Element.prototype.move = function(dir) {
     };
 
     function performHit() {
-        // console.log('performing hittting');
+         console.log('performing hittting');
         that.cords.reduce(function(prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
         }, 0);
@@ -285,34 +285,56 @@ Element.prototype.move = function(dir) {
 
 };
 
-var tetris = new Field({
+function Tetris(options) {
+    Field.call(this, options);
+    this.level = options.level || 1;
+};
+
+Tetris.prototype = Object.create(Field.prototype);
+
+Tetris.prototype.move = function(dir) {
+    if (!this.element) return;
+    if (tetris.element.move(dir)) {
+        tetris.draw();
+    }
+};
+
+Tetris.prototype.rotate = function() {
+    if (!this.element) return;
+    if (this.element.rotate()) {
+        this.draw();
+    };
+}
+
+
+var tetris = new Tetris({
     "w": 10,
     "h": 17
 });
 
 tetris.draw = function() {
     var container = $('#tetris');
-    
-    var row,renderHtml = [];
+
+    var row, renderHtml = [];
     for (var y = 0; y < this.height; y++) {
-    	row = [];
-    	row.push('<ul class="row">');
-    	for (var x = 0; x < this.width; x++) {
-    		switch (this.cells[y][x]) {
-    			case '..' :
-    			row.push('<li></li>');
-    			break;
-    			case '*' :
-    			row.push('<li class="element"></li>');
-    			break;    			
-    			case '#' :
-    			row.push('<li class="ground"></li>');
-    			break;
-    			default:
-    		}
-    	};
-    	row.push('</ul>');
-    	renderHtml.push(row.join(''));
+        row = [];
+        row.push('<ul class="row">');
+        for (var x = 0; x < this.width; x++) {
+            switch (this.cells[y][x]) {
+                case '..':
+                    row.push('<li></li>');
+                    break;
+                case '*':
+                    row.push('<li class="element"></li>');
+                    break;
+                case '#':
+                    row.push('<li class="ground"></li>');
+                    break;
+                default:
+            }
+        };
+        row.push('</ul>');
+        renderHtml.push(row.join(''));
     }
     container.html('');
     container.append(renderHtml.join(''));
@@ -332,27 +354,19 @@ setInterval(function() {
 $(document).keydown(function(e) {
     switch (e.which) {
         case 37: // left
-            if (tetris.element.move([-1, 0])) {
-                tetris.draw();
-            };
+            tetris.move([-1, 0]);
             break;
 
         case 38: // up
-            if (tetris.element.rotate()) {
-                tetris.draw();
-            };
+        	tetris.rotate();
             break;
 
         case 39: // right
-            if (tetris.element.move([1, 0])) {
-                tetris.draw();
-            };
+            tetris.move([1, 0]);
             break;
 
         case 40: // down
-            if (tetris.element.move([0, 1])) {
-                tetris.draw();
-            };
+            tetris.move([0, 1]);
             break;
 
         default:

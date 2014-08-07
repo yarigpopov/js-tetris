@@ -1,0 +1,35 @@
+#tetris {
+    margin: 20px auto;
+    background-color: aliceblue;
+    /*text-align: center;*/
+    display: inline-block;
+}
+
+#tetris-container {
+	
+	text-align: center;
+    
+}
+
+ul.row {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+ul.row > li {
+    float: left;
+    width: 20px;
+    height: 20px;
+    background-color: #ccc;
+    border:1px solid #eee;
+}
+
+ul.row > li.ground {
+	background-color: #555;
+}
+
+ul.row > li.element {
+	background-color: red;
+}
+
+
