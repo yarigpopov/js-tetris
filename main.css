@@ -1,22 +1,32 @@
+.container {
+
+}
+
+.sidebar {
+    position: relative;
+
+    display: block;
+}
+
 #tetris {
     margin: 20px auto;
     background-color: aliceblue;
-    /*text-align: center;*/
     display: inline-block;
 }
 
 #tetris-container {
-	
 	text-align: center;
-    
+	width: 320px;
+	margin: 0px auto;	
+    background-color:  #DDD;    
 }
 
-ul.row {
+#tetris ul.row {
     list-style: none;
     padding: 0;
     margin: 0;
 }
-ul.row > li {
+#tetris ul.row > li {
     float: left;
     width: 20px;
     height: 20px;
@@ -24,12 +34,16 @@ ul.row > li {
     border:1px solid #eee;
 }
 
-ul.row > li.ground {
+#tetris ul.row > li.ground {
 	background-color: #555;
 }
 
-ul.row > li.element {
+#tetris ul.row > li.element {
 	background-color: red;
 }
 
-
+#end-game {
+	display: none;
+	background-color: #f0f0f0;
+	padding: 20px;
+}

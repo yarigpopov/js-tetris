@@ -294,10 +294,34 @@ TetrisElement.prototype = Object.create(Element.prototype);
 
 function Tetris(options) {
     Field.call(this, options);
-    this.level = options.level || 1;
+    this.level = options.level || 0;
+    this.delay = options.delay || 2000;
+    this.intervalID = null;
 };
 
 Tetris.prototype = Object.create(Field.prototype);
+Tetris.prototype.parent = Field.prototype;
+
+Tetris.prototype.nextLevel = function() {
+    this.level++;
+    if (this.intervalID) {
+        clearInterval(this.intervalID);
+    }
+    this.delay = 2000 * Math.pow(0.9, this.level - 1);
+    var that = this;
+    this.intervalID = setInterval(function() {
+        that.step();
+    }, this.delay);
+}
+
+Tetris.prototype.endGame = function() {
+    if (this.intervalID) {
+        clearInterval(this.intervalID);
+    }
+    if (this.performEndGame) this.performEndGame();
+}
+
+
 
 Tetris.prototype.move = function(dir) {
     if (!this.element) return;
@@ -330,11 +354,23 @@ Tetris.prototype.drop = function() {
 Tetris.prototype.newElement = function() {
     this.element = null;
     this.element = new TetrisElement(this);
-    console.log('newElement'+this.element.isDropping);
+    console.log('newElement' + this.element.isDropping);
     this.draw();
+    var that = this;
+    if (that.element.cords.reduce(function(prev, curr) {
+        return that.cells[curr[1] + 1][curr[0]] === '#'; //hack need to rewrite for checking on the stage of creating
+    }, false)) {
+        that.endGame();
+
+    }
 }
 
-
+Tetris.prototype.checkErase = function(row) {
+    this.parent.checkErase.call(this, row);
+    while (this.erased >= 2 * this.level) {
+        this.nextLevel();
+    }
+}
 
 var tetris = new Tetris({
     "w": 10,
@@ -367,26 +403,23 @@ tetris.draw = function() {
     }
     container.html('');
     container.append(renderHtml.join(''));
-    container.append('<h2>Erased rows: ' + this.erased + '</h2>');
+    var stats = $('#stats');
+    stats.html('');
+    stats.append('<h2>Level: ' + this.level + ' Erased rows: ' + this.erased + '</h2>');
     if (this.element) {
-        container.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
-        container.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
+        stats.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
+        stats.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
+        stats.append('<p> ' + this.delay + '</p>');
     }
 }
 
-// tetris.newElement = function() {
-//     this.element = null;
-//     this.element = new TetrisElement(this);
-//     console.log('asdf' + this.element.isDropping);
-//     this.draw();
-// }
-
-
+tetris.performEndGame = function() {
+    $('#tetris').hide();
+    $('#end-game').show();
+};
 
 tetris.draw();
-setInterval(function() {
-    tetris.step();
-}, 2000);
+tetris.nextLevel();
 
 $(document).keydown(function(e) {
     switch (e.which) {
