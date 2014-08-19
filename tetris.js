@@ -418,20 +418,24 @@ tetris.performEndGame = function() {
 tetris.draw();
 tetris.nextLevel();
 
-$('#buttons').find('#left').on('click', function() {
+$('#buttons').find('#left').on('click', function(event) {
     tetris.move([-1, 0])
+    event.preventDefaults();
 });
 $('#buttons').find('#drop').on('click', function() {
     if (tetris.element && !tetris.element.isDropping) {
         tetris.element.isDropping = true;
         tetris.drop();
     }
+    event.preventDefaults();
 });
 $('#buttons').find('#rotate').on('click', function() {
     tetris.rotate();
+    event.preventDefaults();
 });
 $('#buttons').find('#right').on('click', function() {
     tetris.move([1, 0])
+    event.preventDefaults();
 });
 
 $(document).keydown(function(e) {
