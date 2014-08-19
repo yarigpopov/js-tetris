@@ -9,10 +9,9 @@
 
 <body>
 
-    <div id="stats" class="content">
-    </div>
-
     <div id="tetris-container" class="container">
+        <div id="stats" class="content">
+        </div>
         <div class="sidebar">
             <div id="tetris">
 
@@ -23,7 +22,29 @@
             </div>
         </div>
 
-        <div class="wrapper">
+        <div id="buttons">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div id="left"></div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div id="drop"></div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div id="rotate"></div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <div id="right"></div>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 
@@ -34,6 +55,7 @@
         <div id="stats" </div>
         </div> -->
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
     <script src="tetris.js"></script>
 </body>
 

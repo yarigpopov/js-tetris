@@ -1,26 +1,21 @@
-.container {
-
+body, h5 {
+    margin: 0px;
 }
-
-.sidebar {
+.container {} .sidebar {
     position: relative;
-
     display: block;
 }
-
 #tetris {
-    margin: 20px auto;
-    background-color: aliceblue;
+    margin: 0px auto;
+    background-color: #f0f0f0;
     display: inline-block;
 }
-
 #tetris-container {
-	text-align: center;
-	width: 320px;
-	margin: 0px auto;	
-    background-color:  #DDD;    
+    text-align: center;
+    width: 250px;
+    margin: 0px auto;
+    background-color: #f0f0f0;
 }
-
 #tetris ul.row {
     list-style: none;
     padding: 0;
@@ -31,19 +26,53 @@
     width: 20px;
     height: 20px;
     background-color: #ccc;
-    border:1px solid #eee;
+    border: 1px solid #eee;
 }
-
 #tetris ul.row > li.ground {
-	background-color: #555;
+    background-color: #555;
 }
-
 #tetris ul.row > li.element {
-	background-color: red;
+    background-color: red;
+}
+#end-game {
+    display: none;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+#buttons ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#buttons ul li {
+    display: inline-block;
+    background-color: #c0c0c0;
+    /*    height: 50px;
+    width: 50px;*/
+    margin: 2px;
+}
+#buttons ul li a div {
+    height: 50px;
+    width: 50px;
+    background-image: url('img/arrows-from-shutterstock.jpg');
+    background-size: 220px 220px;
+    border: 1px solid #FF7979;
+    box-shadow: 1px 1px 2px #F36969;
 }
 
-#end-game {
-	display: none;
-	background-color: #f0f0f0;
-	padding: 20px;
+#buttons ul li a div:active {
+    opacity: 0.7;
+}
+
+#buttons ul li a div#left {
+    background-position: -1px -3px;
+}
+#buttons ul li a div#drop {
+    background-position: -166px -159px;
+}
+#buttons ul li a div#rotate {
+    background-position: -55px -106px;
+}
+#buttons ul li a div#right {
+    background-position: -55px -3px;
 }

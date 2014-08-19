@@ -307,7 +307,7 @@ Tetris.prototype.nextLevel = function() {
     if (this.intervalID) {
         clearInterval(this.intervalID);
     }
-    this.delay = 2000 * Math.pow(0.9, this.level - 1);
+    this.delay = 1500 * Math.pow(0.8, this.level - 1);
     var that = this;
     this.intervalID = setInterval(function() {
         that.step();
@@ -367,7 +367,7 @@ Tetris.prototype.newElement = function() {
 
 Tetris.prototype.checkErase = function(row) {
     this.parent.checkErase.call(this, row);
-    while (this.erased >= 2 * this.level) {
+    while (this.erased >= 5 * this.level) {
         this.nextLevel();
     }
 }
@@ -405,21 +405,34 @@ tetris.draw = function() {
     container.append(renderHtml.join(''));
     var stats = $('#stats');
     stats.html('');
-    stats.append('<h2>Level: ' + this.level + ' Erased rows: ' + this.erased + '</h2>');
-    if (this.element) {
-        stats.append('<p>Element: {' + this.element.x + ',' + this.element.y + '}' + '</p>');
-        stats.append('<p>Element cords: ' + this.element.cords.toString() + '</p>');
-        stats.append('<p> ' + this.delay + '</p>');
-    }
+    var statTemplate = _.template("<h5>Level: <%= level %> Rows <%= erased %></h5>");
+    stats.append(statTemplate(tetris));
 }
 
 tetris.performEndGame = function() {
     $('#tetris').hide();
+    $('#buttons').hide();
     $('#end-game').show();
 };
 
 tetris.draw();
 tetris.nextLevel();
+
+$('#buttons').find('#left').on('click', function() {
+    tetris.move([-1, 0])
+});
+$('#buttons').find('#drop').on('click', function() {
+    if (tetris.element && !tetris.element.isDropping) {
+        tetris.element.isDropping = true;
+        tetris.drop();
+    }
+});
+$('#buttons').find('#rotate').on('click', function() {
+    tetris.rotate();
+});
+$('#buttons').find('#right').on('click', function() {
+    tetris.move([1, 0])
+});
 
 $(document).keydown(function(e) {
     switch (e.which) {
