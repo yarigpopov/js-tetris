@@ -4,18 +4,19 @@ function Field(options) {
     this.cells = new Array(this.height);
     //initiolize cells
     for (var y = 0; y < this.height; y++) {
-        this.cells[y] = new Array(this.width)
+        this.cells[y] = new Array(this.width);
         for (var x = 0; x < this.width; x++) {
             this.cells[y][x] = '..';
         }
     }
     this.turn = 0;
     this.erased = 0;
+}
+
+Field.prototype.draw = function () {
 };
 
-Field.prototype.draw = function() {};
-
-Field.prototype.step = function() {
+Field.prototype.step = function () {
     this.turn++;
     console.log('Turn #', this.turn, Date());
     if (!this.element || this.element == undefined) {
@@ -27,14 +28,14 @@ Field.prototype.step = function() {
     }
 };
 
-Field.prototype.checkErase = function(row) {
+Field.prototype.checkErase = function (row) {
     var that = this;
-    var doErase = this.cells[row].reduce(function(prev, currVal) {
+    var doErase = this.cells[row].reduce(function (prev, currVal) {
         return (prev && (currVal === '#'))
     }, true);
     if (doErase) {
         for (var i = row; i > 0; i--) {
-            var stop = that.cells[i].reduce(function(prev, currVal, index) {
+            var stop = that.cells[i].reduce(function (prev, currVal, index) {
                 //if the in preveous row we have an element then forcing to erase with empty space;
                 that.cells[i - 1][index] === '*' ? that.cells[i][index] = '..' : that.cells[i][index] = that.cells[i - 1][index];
                 return prev || (currVal === '#')
@@ -43,15 +44,16 @@ Field.prototype.checkErase = function(row) {
         }
         this.erased++;
         this.checkErase(row);
-    };
+    }
+
 
 };
 
-Field.prototype.newElement = function() {
+Field.prototype.newElement = function () {
     this.element = null;
     this.element = new Element(this);
     this.draw();
-}
+};
 
 function Element(field) {
     function getShape(x, y) {
@@ -101,7 +103,7 @@ function Element(field) {
             ]
         ];
         var shape = possible[Math.floor(Math.random() * possible.length)];
-        return shape.map(function(val) {
+        return shape.map(function (val) {
             return [val[0] + x, val[1] + y]
         });
     }
@@ -110,12 +112,12 @@ function Element(field) {
     this.x = Math.floor((this.field.width - 1) / 2);
     this.y = 1;
     this.cords = getShape(this.x, this.y);
-    this.cords.map(function(elm) {
+    this.cords.map(function (elm) {
         this.cells[elm[1]][elm[0]] = '*';
     }, this.field);
-};
+}
 
-Element.prototype.rotate = function() {
+Element.prototype.rotate = function () {
     function validateRot() {
         function result() {
             return {
@@ -123,10 +125,10 @@ Element.prototype.rotate = function() {
                 "newCords": arguments[1]
                 // "comment": arguments[2]
             }
-        };
+        }
 
         var canRot = true;
-        var newCords = this.cords.map(function(value) {
+        var newCords = this.cords.map(function (value) {
             var newPoint = [(value[1] - this.y) + this.x, -(value[0] - this.x) + this.y];
             var field = this.field;
             //check horizontal conditions
@@ -137,7 +139,8 @@ Element.prototype.rotate = function() {
                 if (!(pnt == '..' || pnt == '*')) {
                     canRot = false
                 }
-            };
+            }
+            ;
             //check vertical conditions
             if (newPoint[1] < 0) {
                 canRot = false
@@ -157,10 +160,10 @@ Element.prototype.rotate = function() {
 
     function applyRot(that, newCords) {
         // console.log('Applying rotate to', newCords);
-        that.cords.reduce(function(prev, curr) {
+        that.cords.reduce(function (prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '..';
         }, 0);
-        newCords.reduce(function(prev, curr) {
+        newCords.reduce(function (prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '*';
         }, 0);
         that.cords = newCords;
@@ -169,12 +172,13 @@ Element.prototype.rotate = function() {
     if (valRot.rotate) {
 
         applyRot(this, valRot.newCords);
-    };
+    }
+    ;
     return valRot.rotate;
 
 };
 
-Element.prototype.validateHozMove = function(X) {
+Element.prototype.validateHozMove = function (X) {
     function result() {
         return {
             "moveX": arguments[0],
@@ -184,7 +188,7 @@ Element.prototype.validateHozMove = function(X) {
     };
 
     var canMoveX = true;
-    var newCords = this.cords.map(function(value) {
+    var newCords = this.cords.map(function (value) {
         var newPoint = [value[0] + X, value[1]];
         var field = this.field;
         if (newPoint[0] < 0 || newPoint[0] >= field.width) {
@@ -194,13 +198,14 @@ Element.prototype.validateHozMove = function(X) {
             if (!(pnt == '..' || pnt == '*')) {
                 canMoveX = false
             }
-        };
+        }
+        ;
         return newPoint;
     }, this);
     return result(canMoveX, newCords);
 };
 
-Element.prototype.validateVertMove = function(Y) {
+Element.prototype.validateVertMove = function (Y) {
     function result() {
         return {
             "moveY": arguments[0],
@@ -211,7 +216,7 @@ Element.prototype.validateVertMove = function(Y) {
 
     var canMoveY = true;
     var hitGround = false;
-    var newCords = this.cords.map(function(value) {
+    var newCords = this.cords.map(function (value) {
         var newPoint = [value[0], value[1] + Y];
         var field = this.field;
         if (newPoint[1] < 0) {
@@ -232,13 +237,13 @@ Element.prototype.validateVertMove = function(Y) {
 };
 
 
-Element.prototype.move = function(dir) {
+Element.prototype.move = function (dir) {
     function applyMove(newCords) {
         // console.log('Applying move to', newCords);
-        that.cords.reduce(function(prev, curr) {
+        that.cords.reduce(function (prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '..';
         }, 0);
-        newCords.reduce(function(prev, curr) {
+        newCords.reduce(function (prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '*';
         }, 0);
         that.cords = newCords;
@@ -248,11 +253,11 @@ Element.prototype.move = function(dir) {
 
     function performHit() {
         console.log('performing hittting');
-        that.cords.reduce(function(prev, curr) {
+        that.cords.reduce(function (prev, curr) {
             that.field.cells[curr[1]][curr[0]] = '#';
         }, 0);
 
-        that.cords.reduce(function(prev, curr) {
+        that.cords.reduce(function (prev, curr) {
             that.field.checkErase(curr[1]);
         }, 0);
         that.field.newElement();
@@ -302,19 +307,19 @@ function Tetris(options) {
 Tetris.prototype = Object.create(Field.prototype);
 Tetris.prototype.parent = Field.prototype;
 
-Tetris.prototype.nextLevel = function() {
+Tetris.prototype.nextLevel = function () {
     this.level++;
     if (this.intervalID) {
         clearInterval(this.intervalID);
     }
     this.delay = 1500 * Math.pow(0.8, this.level - 1);
     var that = this;
-    this.intervalID = setInterval(function() {
+    this.intervalID = setInterval(function () {
         that.step();
     }, this.delay);
 }
 
-Tetris.prototype.endGame = function() {
+Tetris.prototype.endGame = function () {
     if (this.intervalID) {
         clearInterval(this.intervalID);
     }
@@ -322,42 +327,42 @@ Tetris.prototype.endGame = function() {
 }
 
 
-
-Tetris.prototype.move = function(dir) {
+Tetris.prototype.move = function (dir) {
     if (!this.element) return;
     if (tetris.element.move(dir)) {
         tetris.draw();
     }
 };
 
-Tetris.prototype.rotate = function() {
+Tetris.prototype.rotate = function () {
     if (!this.element) return;
     if (this.element.rotate()) {
         this.draw();
-    };
+    }
+    ;
 }
 
-Tetris.prototype.drop = function() {
+Tetris.prototype.drop = function () {
     console.log('drop');
     if (!this.element) return;
     if (!this.element.isDropping) return;
     if (tetris.element.move([0, 1])) {
         var that = this;
         this.draw();
-        setTimeout(function() {
+        setTimeout(function () {
             that.drop();
         }, 50);
     }
 }
 
 
-Tetris.prototype.newElement = function() {
+Tetris.prototype.newElement = function () {
     this.element = null;
     this.element = new TetrisElement(this);
     console.log('newElement' + this.element.isDropping);
     this.draw();
     var that = this;
-    if (that.element.cords.reduce(function(prev, curr) {
+    if (that.element.cords.reduce(function (prev, curr) {
         return that.cells[curr[1] + 1][curr[0]] === '#'; //hack need to rewrite for checking on the stage of creating
     }, false)) {
         that.endGame();
@@ -365,7 +370,7 @@ Tetris.prototype.newElement = function() {
     }
 }
 
-Tetris.prototype.checkErase = function(row) {
+Tetris.prototype.checkErase = function (row) {
     this.parent.checkErase.call(this, row);
     while (this.erased >= 5 * this.level) {
         this.nextLevel();
@@ -377,7 +382,7 @@ var tetris = new Tetris({
     "h": 17
 });
 
-tetris.draw = function() {
+tetris.draw = function () {
     var container = $('#tetris');
 
     var row, renderHtml = [];
@@ -397,7 +402,8 @@ tetris.draw = function() {
                     break;
                 default:
             }
-        };
+        }
+        ;
         row.push('</ul>');
         renderHtml.push(row.join(''));
     }
@@ -409,7 +415,7 @@ tetris.draw = function() {
     stats.append(statTemplate(tetris));
 }
 
-tetris.performEndGame = function() {
+tetris.performEndGame = function () {
     $('#tetris').hide();
     $('#buttons').hide();
     $('#end-game').show();
@@ -418,27 +424,28 @@ tetris.performEndGame = function() {
 tetris.draw();
 tetris.nextLevel();
 
-$('#buttons').find('#left').on('click', function(event) {
+$$('li.element').swipeLeft(function (event) {
     tetris.move([-1, 0])
     event.preventDefaults();
 });
-$('#buttons').find('#drop').on('click', function() {
+$$('li.element').swipeDown(function (event) {
     if (tetris.element && !tetris.element.isDropping) {
         tetris.element.isDropping = true;
         tetris.drop();
     }
     event.preventDefaults();
 });
-$('#buttons').find('#rotate').on('click', function() {
+$$('li.element').tap(function (event) {
     tetris.rotate();
     event.preventDefaults();
 });
-$('#buttons').find('#right').on('click', function() {
+$$('li.element').swipeRight(function (event) {
     tetris.move([1, 0])
     event.preventDefaults();
 });
 
-$(document).keydown(function(e) {
+
+$(document).keydown(function (e) {
     switch (e.which) {
         case 37: // left
             tetris.move([-1, 0]);
@@ -459,7 +466,8 @@ $(document).keydown(function(e) {
             if (tetris.element && !tetris.element.isDropping) {
                 tetris.element.isDropping = true;
                 tetris.drop();
-            };
+            }
+            ;
 
 
             break;
