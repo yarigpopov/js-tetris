@@ -1,65 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable = no" />
+    <title>Tetris by chilicoder and forked by Tim</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="initial-scale=1.0,user-scalable = no">
-    <title>Tetris by chilicoder</title>
-    <link rel="stylesheet" href="main.css">
-</head>
-
-<body>
-
-<div id="tetris-container" class="container">
-    <div id="stats" class="content">
-    </div>
-    <div class="sidebar">
-        <div id="tetris">
-
-        </div>
+  <body>
+    <div>Forked by Tim</div>
+    <div id="tetris-container" class="container">
+      <div id="stats" class="content"></div>
+      <div class="sidebar">
+        <div id="tetris"></div>
         <div id="end-game">
-            <h1>Game over!</h1>
-            <a href="index.htm">play again</a>
+          <h1>Game over!</h1>
+          <a href="index.htm">play again</a>
         </div>
-    </div>
+      </div>
 
-    <div id="buttons">
+      <div id="buttons">
         <ul>
-            <li>
-                <a href="#">
-                    <div id="left"></div>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <div id="drop"></div>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <div id="rotate"></div>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <div id="right"></div>
-                </a>
-            </li>
+          <li>
+            <a href="#">
+              <div id="left"></div>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <div id="drop"></div>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <div id="rotate"></div>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <div id="right"></div>
+            </a>
+          </li>
         </ul>
+      </div>
     </div>
-</div>
 
-
-<!--     <div >
+    <!--     <div >
     <div id="tetris" </div>
     </div>
     <div id="stats" </div>
     </div> -->
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="http://underscorejs.org/underscore-min.js"></script>
-<script src="./quo.debug.js"></script>
-<script src="./tetris.js"></script>
-</body>
-
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="./quo.debug.js"></script>
+    <script src="./tetris.js"></script>
+  </body>
 </html>
